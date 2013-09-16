@@ -17,7 +17,7 @@ def divideset( rows, column, value ):
     # A function that tells us if a row is in the first (true) group or second (false)
     
     # We only have numeric values...
-    split_function = lambda row : row[ column ] >= value
+    split_function = lambda row : row[ column ] < value
 
     # Divide the rows into two sets and return them
     set1 = [ row for row in rows if split_function( row ) ]
@@ -54,12 +54,20 @@ def entropy( rows ):
     return ent
 
 
+def variance(rows):
 
-def buildTree( rows ):
+    if len(rows) == 0: return 0
+    data = [ float( row[ len(row)-1 ] ) for row in rows ]
+    mean = sum(data)/len(data)
+    varnce = sum( [ (d-mean)**2 for d in data ] )/len(data)
+
+    return varnce
+
+def buildTree( rows, scoref=variance ):
     import math
 
     if len(rows) == 0. : return DecisionNode()
-    currentScore = entropy(rows)
+    currentScore = scoref(rows)
 
     # initial setup
     bestGain = 0.
@@ -85,7 +93,7 @@ def buildTree( rows ):
 
             #Information Gain
             p = float( len(set1) )/len(rows)
-            gain = currentScore-p*entropy(set1)-(1-p)*entropy(set2)
+            gain = currentScore-p*scoref(set1)-(1-p)*scoref(set2)
 
             if gain > bestGain and len(set1) > 0 and len(set2) > 0:
                 bestGain = gain
@@ -101,6 +109,27 @@ def buildTree( rows ):
     else :
         return DecisionNode( results=uniquecounts(rows) )
 
+
+def prune(tree, mingain):
+
+    if tree.tb.results == None:
+        prune(tree.tb, mingain)
+    if tree.fb.results == None:
+        prune(tree.fb, mingain)
+
+
+    if tree.tb.results != None and tree.fb.results != None :
+        tb,fb = [],[]
+        for v,c in tree.tb.results.items():
+            tb+=[[v]]*c
+        for v,c in tree.fb.results.items():
+            fb+=[[v]]*c
+
+        delta=entropy(tb+fb)-(entropy(tb)+entropy(fb)/2)
+
+        if delta<mingain:
+            tree.tb, tree.fb = None, None
+            tree.results = uniquecounts( tb+fb )
 
 
 def example():
@@ -123,6 +152,7 @@ def example():
     print 'unique Results--', uniRes
 
     tree = buildTree(rows)
+    prune( tree, 1. )
 
     # print the tree
     printtree(tree)
@@ -139,7 +169,14 @@ def printtree( tree, indent='' ):
     else:
 
         # print criteria
-        print str( tree.col )+':'+str( tree.value )+'? '
+        if tree.col == 0 :
+            colStr = 'Bz'
+        if tree.col == 1 :
+            colStr = 'Bt'
+        if tree.col == 2 :
+            colStr = 'pDyn'
+
+        print str( colStr )+'<'+str( tree.value )+'? '
 
         # print the branches
         print indent+'T->', 
@@ -181,8 +218,15 @@ def drawnode( draw, tree, x, y ):
         left = x - (w1+w2)/2
         right = x + (w1+w2)/2
 
+        # print criteria
+        if tree.col == 0 :
+            colStr = 'Bz'
+        if tree.col == 1 :
+            colStr = 'Bt'
+        if tree.col == 2 :
+            colStr = 'pDyn'
 
-        draw.text( (x-20,y-10), str(tree.col)+':'+str(tree.value), (0,0,0) )
+        draw.text( (x-20,y-10), str(colStr)+'<'+str(tree.value), (0,0,0) )
 
         draw.line( ( x, y, left+w1/2, y+100 ), fill = ( 255, 0 , 0 ) )
         draw.line( ( x, y, right-w2/2, y+100 ), fill = ( 255, 0 , 0 ) )

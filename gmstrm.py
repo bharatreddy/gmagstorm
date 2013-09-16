@@ -8,7 +8,7 @@ class StormPredict(object):
     import datetime
     import numpy
 
-    def __init__( self, startTime=datetime.datetime(2012,12,1,0), endTime=datetime.datetime(2012,12,31,23) ):
+    def __init__( self, startTime=datetime.datetime(2012,1,1,0), endTime=datetime.datetime(2012,6,30,23) ):
         # set the start and end times to run the classification algorithm on
         self.sTime = startTime
         self.eTime = endTime
@@ -129,20 +129,30 @@ class StormPredict(object):
 
         indexDatArr = []
         for a, s in zip( aeDatArr, symhDatArr ):
-            if ( (s > -50.) and (a < 500.) ):
+            if ( (s > -50.) and (a < 750.) ):
                 indexDatArr.append(1.)
-            elif ( (s > -50.) and (a >= 500. and a < 1000.) ):
+            elif ( (s > -50.) and (a >= 750.) ):
                 indexDatArr.append(2.)
-            elif ( (s > -50.) and (a >= 1000.) ):
+            elif ( (s <= -50.) ):
                 indexDatArr.append(3.)
-            elif ( (s <= -50.) and (a < 500.) ):
-                indexDatArr.append(4.)
-            elif ( (s <= -50.) and (a >= 500. and a < 1000.) ):
-                indexDatArr.append(5.)
-            elif ( (s <= -50.) and (a >= 1000.) ):
-                indexDatArr.append(6.)
             else :
                 print 'some issue', s, a
+
+
+            # if ( (s > -50.) and (a < 500.) ):
+            #     indexDatArr.append(1.)
+            # elif ( (s > -50.) and (a >= 500. and a < 1000.) ):
+            #     indexDatArr.append(2.)
+            # elif ( (s > -50.) and (a >= 1000.) ):
+            #     indexDatArr.append(3.)
+            # elif ( (s <= -50.) and (a < 500.) ):
+            #     indexDatArr.append(4.)
+            # elif ( (s <= -50.) and (a >= 500. and a < 1000.) ):
+            #     indexDatArr.append(5.)
+            # elif ( (s <= -50.) and (a >= 1000.) ):
+            #     indexDatArr.append(6.)
+            # else :
+            #     print 'some issue', s, a
 
         indexDatArr = numpy.array( indexDatArr )
 
