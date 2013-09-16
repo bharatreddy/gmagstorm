@@ -8,7 +8,7 @@ class StormPredict(object):
     import datetime
     import numpy
 
-    def __init__( self, startTime=datetime.datetime(2012,1,1,0), endTime=datetime.datetime(2012,12,31,23) ):
+    def __init__( self, startTime=datetime.datetime(2012,12,1,0), endTime=datetime.datetime(2012,12,31,23) ):
         # set the start and end times to run the classification algorithm on
         self.sTime = startTime
         self.eTime = endTime
@@ -75,6 +75,7 @@ class StormPredict(object):
         import pydarn
         import gme
         import math
+
 
 
         #Read in OMNI Data...get bz, by and pdyn
@@ -158,11 +159,7 @@ class StormPredict(object):
             fig.savefig( 'plots/indexplot.jpeg',orientation='portrait',format='jpeg' )
             ax.clear()
 
-        # since we are just doing we only need indexDatArr from now on
-        del aeDatArr, symhDatArr, asyhDatArr # we are doing this to save memory, these are huge numbers
-
-        ( bzmDatArr, btDatArr, pDynDatArr, omnTimeArr ) = self.omniData()
-        
+                
         # make a scatter plot of symH, AE and index
         if makeOMNIndexPlt :
             fig = plt.figure(figsize = ( 11, 8.5 ) )
@@ -186,3 +183,18 @@ class StormPredict(object):
             fig.savefig( 'plots/BtPdyn.pdf',orientation='portrait',format='pdf' )
             fig.savefig( 'plots/BtPdyn.jpeg',orientation='portrait',format='jpeg' )
             ax.clear()
+
+
+        # since we are just doing we only need indexDatArr from now on
+        del aeDatArr, symhDatArr, asyhDatArr, aeTimeArr, symTimeArr # we are doing this to save memory, these are huge numbers
+
+        ( bzmDatArr, btDatArr, pDynDatArr, omnTimeArr ) = self.omniData()
+
+        # return a single array with Index in the last column and data in the first few
+        rows = numpy.array( [ bzmDatArr, btDatArr, pDynDatArr, indexDatArr ] )
+        rows = rows.transpose()
+
+        # since we are just doing we only need indexDatArr from now on
+        del bzmDatArr, btDatArr, pDynDatArr, omnTimeArr # we are doing this to save memory, these are huge numbers
+
+        return rows
